@@ -6,15 +6,26 @@ const Header = (props) => {
 };
 
 const Content = (props) => {
-  return Array.from(Array(10).keys())
-    .map((p, i) => [props.parts[i], props.exercises[i]])
-    .map((course, i) => <p key={i}>{course[0]} {course[1]}</p>);
+  return (
+    <div>
+      <Part part={props.parts[0]} exercise={props.exercises[0]} />
+      <Part part={props.parts[1]} exercise={props.exercises[1]} />
+      <Part part={props.parts[2]} exercise={props.exercises[2]} />
+    </div>
+  );
 };
 
 const Total = (props) => {
-  return <p>Number of exercises {props.sum}</p>
+  return <p>Number of exercises {props.sum}</p>;
+};
 
-}
+const Part = (props) => {
+  return (
+    <p>
+      {props.part} {props.exercise}
+    </p>
+  );
+};
 
 const App = () => {
   const course = "Half Stack application development";
@@ -32,7 +43,7 @@ const App = () => {
     <div>
       <Header course={course} />
       <Content parts={parts} exercises={exercises} />
-      <Total sum={exercises.reduce((a,b) => a+b)} />
+      <Total sum={exercises.reduce((a, b) => a + b)} />
     </div>
   );
 };
