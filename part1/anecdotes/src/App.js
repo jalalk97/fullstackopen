@@ -1,5 +1,17 @@
 import { useState } from "react";
 
+const Anecdote = ({ title, text, votes }) => {
+  return (
+    <div>
+      <h2>{title}</h2>
+      <div>{text}</div>
+      <div>has {votes} votes</div>
+    </div>
+  );
+};
+
+const Button = ({ onClick, text }) => <button onClick={onClick}>{text}</button>;
+
 const App = () => {
   const anecdotes = [
     "If it hurts, do it more often.",
@@ -15,27 +27,32 @@ const App = () => {
   const [points, setPoints] = useState(Array(anecdotes.length).fill(0));
   const [argmax, setArgmax] = useState(0);
 
-  const randint = max => Math.floor(Math.random() * max);
+  const randint = (max) => Math.floor(Math.random() * max);
   const randomAnecdote = () => setSelected(randint(anecdotes.length));
 
   const incrementSelected = () => {
     const copy = [...points];
     copy[selected]++;
     if (copy[selected] > copy[argmax]) {
-      setArgmax(selected)
+      setArgmax(selected);
     }
     setPoints(copy);
-  }
+  };
 
   return (
     <div>
-      <h2>Annecdote of the day</h2>
-      <div>{anecdotes[selected]}</div>
-      <div>has {points[selected]} votes</div>
-      <button onClick={incrementSelected}>vote</button>
-      <button onClick={randomAnecdote}>next anecdote</button>
-      <h2>Annecdote with the most votes</h2>
-      <div>{anecdotes[argmax]}</div>
+      <Anecdote
+        title="Annecdote of the day"
+        text={anecdotes[selected]}
+        votes={points[selected]}
+      />
+      <Button onClick={incrementSelected} text="vote" />
+      <Button onClick={randomAnecdote} text="next anecdote" />
+      <Anecdote
+        title="Annecdote with the most votes"
+        text={anecdotes[argmax]}
+        votes={points[argmax]}
+      />
     </div>
   );
 };
