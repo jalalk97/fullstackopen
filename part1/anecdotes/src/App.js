@@ -13,22 +13,29 @@ const App = () => {
 
   const [selected, setSelected] = useState(0);
   const [points, setPoints] = useState(Array(anecdotes.length).fill(0));
+  const [argmax, setArgmax] = useState(0);
 
   const randint = max => Math.floor(Math.random() * max);
-  const setRandomAnecdote = () => setSelected(randint(anecdotes.length));
+  const randomAnecdote = () => setSelected(randint(anecdotes.length));
 
   const incrementSelected = () => {
     const copy = [...points];
     copy[selected]++;
+    if (copy[selected] > copy[argmax]) {
+      setArgmax(selected)
+    }
     setPoints(copy);
   }
 
   return (
     <div>
+      <h2>Annecdote of the day</h2>
       <div>{anecdotes[selected]}</div>
       <div>has {points[selected]} votes</div>
       <button onClick={incrementSelected}>vote</button>
-      <button onClick={setRandomAnecdote}>next anecdote</button>
+      <button onClick={randomAnecdote}>next anecdote</button>
+      <h2>Annecdote with the most votes</h2>
+      <div>{anecdotes[argmax]}</div>
     </div>
   );
 };
