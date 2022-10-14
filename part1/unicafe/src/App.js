@@ -9,7 +9,6 @@ const Statistics = ({ good, neutral, bad }) => {
 
   return (
     <div>
-      <h1>statistics</h1>
       <div>good {good}</div>
       <div>neutral {neutral}</div>
       <div>bad {bad}</div>
@@ -29,6 +28,14 @@ const App = () => {
   const incrementGood = () => setGood(good + 1);
   const incrementNeutral = () => setNeutral(neutral + 1);
   const incrementBad = () => setBad(bad + 1);
+  const total = () => good + neutral + bad;
+
+  let display;
+  if (total() == 0) {
+    display = <p>No feedback given</p>;
+  } else {
+    display = <Statistics good={good} neutral={neutral} bad={bad} />;
+  }
 
   return (
     <div>
@@ -36,7 +43,8 @@ const App = () => {
       <Button onClick={incrementGood} text="good" />
       <Button onClick={incrementNeutral} text="neutral" />
       <Button onClick={incrementBad} text="bad" />
-      <Statistics good={good} neutral={neutral} bad={bad} />
+      <h1>statistics</h1>
+      {display}
     </div>
   );
 };
