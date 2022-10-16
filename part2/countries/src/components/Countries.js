@@ -1,7 +1,8 @@
 import Country from "./Country";
 
 const Countries = (props) => {
-  const { countries } = props;
+  const { countries, onClick } = props;
+
   if (countries.length > 10) {
     return <div>Too many matches, specify another filter</div>;
   } else {
@@ -11,7 +12,8 @@ const Countries = (props) => {
           <Country
             key={country.name.common}
             countryInfo={country}
-            verbose={countries.length === 1}
+            showDetails={countries.length === 1}
+            onClick={onClick}
           />
         ))}
       </div>

@@ -1,7 +1,8 @@
 const Country = (props) => {
-  const { countryInfo, verbose } = props;
+  let { countryInfo, showDetails, onClick } = props;
   const { name, capital, area, languages, flags } = countryInfo;
-  if (verbose) {
+
+  if (showDetails) {
     return (
       <div>
         <h2>{name.common}</h2>
@@ -17,7 +18,11 @@ const Country = (props) => {
       </div>
     );
   } else {
-    return <div>{name.common}</div>;
+    return (
+      <div>
+        {name.common} <button onClick={onClick(name.common)}>show</button>
+      </div>
+    );
   }
 };
 
