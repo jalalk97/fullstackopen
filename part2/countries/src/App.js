@@ -1,40 +1,53 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-import Filter from "./components/Filter"
-import Countries from "./components/Countries"
+import CountryList from "./components/CountryList";
+import CountryView from "./components/CountryView";
+import Filter from "./components/Filter";
+
+const apiKey = process.env.REACT_APP_API_KEY;
+const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q`;
 
 const App = () => {
   const [countries, setCountries] = useState([]);
-  const [countryFilter, setCountryFilter] = useState("");
+  const [query, setQuery] = useState("");
+  const [weatherData, setWeatherData] = useState({});
 
   useEffect(() => {
     axios.get("https://restcountries.com/v3.1/all").then((response) => {
-      setCountries(response.data);
+      setCountries(response.data.filter((country) => isMatch(country)));
     });
-  }, [countryFilter]);
+  }, [query]);
 
-  const handleFilterChange = (event) => {
-    setCountryFilter(event.target.value);
-  };
+  useEffect(() => {
+    if (countries.length === 1) {
+      axios.get(`${url}${countries[0].capital[0]}`).then((response) => {
+        setWeatherData(response.data);
+      });
+    } else {
+      setWeatherData({});
+    }
+  }, [countries.length]);
 
-  const handleButtonClick = (countryName) => {
-    return (event) => {
-      console.log(event);
-      setCountries(countries.filter(
-        (country) => country.name.common === countryName
-      ));
-    };
-  };
+  const handleClick = (countryName) => () =>
+    setCountries(
+      countries.filter((country) => country.name.common === countryName)
+    );
 
-  const filteredCountries = countries.filter((country) =>
-    country.name.common.toLowerCase().includes(countryFilter.toLowerCase())
-  );
+  const isMatch = (country) =>
+    country.name.common.toLowerCase().includes(query.toLowerCase());
 
   return (
     <div>
-      <Filter value={countryFilter} onChange={handleFilterChange} />
-      <Countries countries={filteredCountries} onClick={handleButtonClick} />
+      <Filter
+        filter={query}
+        onChange={(event) => setQuery(event.target.value)}
+      />
+      {countries.length === 1 ? (
+        <CountryView country={countries[0]} weatherData={weatherData} />
+      ) : (
+        <CountryList countries={countries} onClick={handleClick} />
+      )}
     </div>
   );
 };
