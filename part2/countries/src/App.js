@@ -6,7 +6,7 @@ import CountryView from "./components/CountryView";
 import Filter from "./components/Filter";
 
 const apiKey = process.env.REACT_APP_API_KEY;
-const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q`;
+const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=`;
 
 const App = () => {
   const [countries, setCountries] = useState([]);
