@@ -18,38 +18,48 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    if (
-      persons.map((p) => p.name.toLowerCase()).includes(newName.toLowerCase())
-    ) {
-      alert(`${newName} is already added to phonebook`);
-      return;
+    const person = persons.find((p) =>
+      p.name.toLowerCase().includes(newName.toLowerCase())
+    );
+    if (person != null) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        personService.update(person.id, {...person, number: newNumber}).then(returnedPerson => {
+          setPersons(persons.map((p) => p.id === person.id ? returnedPerson : p))
+          setNewName("");
+          setNewNumber("");
+        })
+      }
     }
-    const personObject = {
-      name: newName,
-      number: newNumber,
-    };
-
-    personService.create(personObject).then((data) => {
-      setPersons(persons.concat(data));
-      setNewName("");
-      setNewNumber("");
-    });
+    else {
+      const personObject = {
+        name: newName,
+        number: newNumber,
+      };
+      personService.create(personObject).then((data) => {
+        setPersons(persons.concat(data));
+        setNewName("");
+        setNewNumber("");
+      });
+    }
   };
 
   const deletePerson = (id) => () => {
+    const errMsg = "This person has already been deleted";
     const person = persons.find((person) => person.id === id);
-    console.log(id, person);
+    if (person == null) {
+      alert(errMsg);
+      return;
+    }
     if (window.confirm(`Delete ${person.name} ?`)) {
-      console.log("delete confirmed");
       personService
         .remove(id)
         .then((response) => {
-          console.log(response);
-          setPersons(persons.filter((person) => person.id !== id));
+          setPersons(persons.filter((p) => p.id !== id));
         })
-        .catch((error) => alert("This person has already been deleted"));
-    } else {
-      console.log("delete cancelled");
+        .catch((error) => {
+          alert(errMsg);
+          setPersons(persons.filter((p) => p.id !== id));
+        });
     }
   };
 
