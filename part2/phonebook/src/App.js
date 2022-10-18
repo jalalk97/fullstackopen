@@ -5,6 +5,8 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 
+const url = "http://localhost:3001/persons"
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: "Arto Hellas", number: "040-1234567" },
@@ -14,22 +16,10 @@ const App = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
+    axios.get(url).then((response) => {
       setPersons(response.data);
     });
   }, []);
-
-  const handleNameChange = (event) => {
-    setNewName(event.target.value);
-  };
-
-  const handleNumberChange = (event) => {
-    setNewNumber(event.target.value);
-  };
-
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
-  };
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -41,28 +31,31 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
-    setPersons(persons.concat(personObject));
-    setNewName("");
-    setNewNumber("");
+
+    axios.post(url, personObject).then((response) => {
+      setPersons(persons.concat(personObject));
+      setNewName("");
+      setNewNumber("");
+    });
   };
 
-  const personsToShow =
-    filter === ""
-      ? persons
-      : persons.filter((person) =>
-          person.name.toLowerCase().includes(filter.toLowerCase())
-        );
+  const personsToShow = persons.filter((person) =>
+    person.name.toLowerCase().includes(filter.toLowerCase())
+  );
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter value={filter} onChange={handleFilterChange} />
+      <Filter
+        value={filter}
+        onChange={(event) => setFilter(event.target.value)}
+      />
       <h3>add a new</h3>
       <PersonForm
         name={newName}
-        onNameChange={handleNameChange}
+        onNameChange={(event) => setNewName(event.target.value)}
         number={newNumber}
-        onNumberChange={handleNumberChange}
+        onNumberChange={(event) => setNewNumber(event.target.value)}
         onClick={addPerson}
       />
       <h3>Numbers</h3>
