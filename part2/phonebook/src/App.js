@@ -7,9 +7,7 @@ import Persons from "./components/Persons";
 import personService from "./services/persons";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-1234567" },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
@@ -38,6 +36,23 @@ const App = () => {
     });
   };
 
+  const deletePerson = (id) => () => {
+    const person = persons.find((person) => person.id === id);
+    console.log(id, person);
+    if (window.confirm(`Delete ${person.name} ?`)) {
+      console.log("delete confirmed");
+      personService
+        .remove(id)
+        .then((response) => {
+          console.log(response);
+          setPersons(persons.filter((person) => person.id !== id));
+        })
+        .catch((error) => alert("This person has already been deleted"));
+    } else {
+      console.log("delete cancelled");
+    }
+  };
+
   const personsToShow = persons.filter((person) =>
     person.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -58,7 +73,7 @@ const App = () => {
         onClick={addPerson}
       />
       <h3>Numbers</h3>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} deletePerson={deletePerson} />
     </div>
   );
 };
