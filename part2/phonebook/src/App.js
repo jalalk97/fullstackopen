@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 import personService from "./services/persons";
 
@@ -11,6 +12,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [success, setNotificaton] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((data) => setPersons(data));
@@ -28,6 +30,10 @@ const App = () => {
           setNewName("");
           setNewNumber("");
         })
+        setNotificaton(`Updated ${newName}`);
+        setTimeout(() => {
+          setNotificaton(null);
+        }, 5000);
       }
     }
     else {
@@ -39,6 +45,10 @@ const App = () => {
         setPersons(persons.concat(data));
         setNewName("");
         setNewNumber("");
+        setNotificaton(`Added ${newName}`);
+        setTimeout(() => {
+          setNotificaton(null);
+        }, 5000);
       });
     }
   };
@@ -70,6 +80,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={success} />
       <Filter
         value={filter}
         onChange={(event) => setFilter(event.target.value)}
