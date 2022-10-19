@@ -1,9 +1,24 @@
 const express = require("express");
+const morgan = require("morgan");
 
 const PORT = 3001;
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
+
+morgan.token("payload", (req, res) => {
+  return JSON.stringify(req.body);
+});
+morgan.format(
+  "tiny-with-payload",
+  ":method :url :status :res[content-length] - :response-time ms :payload"
+);
+app.use(morgan("tiny", {
+  skip: (req, res) => req.method === "POST",
+}));
+app.use(morgan("tiny-with-payload", {
+  skip: (req, res) => req.method !== "POST",
+}));
 
 let persons = [
   {
