@@ -1,9 +1,12 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
-const PORT = 3001;
+const PORT = 8080;
 const app = express();
 
+app.use(cors());
+app.use(express.static('build'));
 app.use(express.json());
 
 morgan.token("payload", (req, res) => {
