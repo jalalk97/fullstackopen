@@ -1,0 +1,17 @@
+{
+  "name": "bloglist",
+  "packageManager": "yarn@3.2.4",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "  nodemon index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.6.7"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
