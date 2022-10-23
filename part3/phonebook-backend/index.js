@@ -104,32 +104,25 @@ app.put("/api/persons/:id", (request, response, next) => {
 //   return id;
 // };
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const body = request.body;
 
-  if (body.name == null) {
-    return response.status(400).json({
-      error: "name missing",
-    });
-  }
-  if (body.number == null) {
-    return response.status(400).json({
-      error: "number missing",
-    });
-  }
   const person = new Person({
     name: body.name,
     number: body.number,
   });
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/info", (request, response) => {
   Person.countDocuments({}, (error, count) => {
     response.send(`
-        <p>Phonebook has info for ${count} people</p>
+        <p>Phonebook has info for ${Object.keys(persons).length} people</p>
         <p>${Date()}</p>
     `);
   });
@@ -144,6 +137,10 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === "CastError") {
     return response.status(400).json({ error: "malformatted id" });
+  } else if (error.name === "ValidationError") {
+    return response.status(400).json({ error: error.message });
+  } else if (error.name === "MongoServerError") {
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);

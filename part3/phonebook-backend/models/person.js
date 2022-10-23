@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const url = process.env.MONGODB_URI;
-console.log("connecting to", url);
 mongoose
   .connect(url)
   .then((result) => {
@@ -12,8 +11,23 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    unique: true,
+    required: true,
+  },
+  number: {
+    type: String,
+    minLength: 8,
+    validate: {
+      validator: number => {
+        return /^(?:\d{2}-\d{6,}|\d{3}-\d{5,}|\d{8,})$/.test(number);
+      },
+      message: (nubmer) => "malformatted number",
+    },
+    required: true,
+  },
 });
 
 personSchema.set("toJSON", {

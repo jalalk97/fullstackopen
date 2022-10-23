@@ -61,10 +61,15 @@ const App = () => {
       }
     }
 
-    personService.create(newPerson).then((savedPerson) => {
-      setPersons(persons.concat(savedPerson));
-      notify(`Added ${savedPerson.name}`);
-    });
+    personService
+      .create(newPerson)
+      .then((savedPerson) => {
+        setPersons(persons.concat(savedPerson));
+        notify(`Added ${savedPerson.name}`);
+      })
+      .catch((error) => {
+        notify(error.response.data.error, "alert");
+      });
   };
 
   const deletePerson = (id) => {
