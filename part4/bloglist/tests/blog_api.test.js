@@ -84,6 +84,32 @@ test("when a blog is added without the likes property, the property defaults to 
     expect(addedBlog.likes).toBe(0);
 })
 
+test("a blog without a title property is not added", async () => {
+  const newBlog = {
+    author: "Blog author",
+    url: "https://blog.com",
+    likes: 11,
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+
+  const response = await api.get("/api/blogs");
+  expect(response.body).toHaveLength(initialBlogs.length);
+});
+
+test("a blog without a url property is not added", async () => {
+  const newBlog = {
+    title: "Blog title",
+    author: "Blog author",
+    likes: 11,
+  };
+
+  await api.post("/api/blogs").send(newBlog).expect(400);
+
+  const response = await api.get("/api/blogs");
+  expect(response.body).toHaveLength(initialBlogs.length);
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });
