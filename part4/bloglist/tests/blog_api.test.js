@@ -110,6 +110,39 @@ test("a blog without a url property is not added", async () => {
   expect(response.body).toHaveLength(initialBlogs.length);
 });
 
+describe("fetching a single blog", () => {
+  test("with a valid id returns as json", async () => {
+    const response = await api.get("/api/blogs");
+    const validId = response.body[0].id;
+
+    await api
+      .get(`/api/blogs/${validId}`)
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+  });
+});
+
+describe("deleting a single blog", () => {
+  test("removes the right blog and responds with status 204", async () => {
+    const newBlog = {
+      title: "Blog to delete",
+      author: "Author",
+      url: "https://blog.com",
+      likes: 5,
+    };
+
+    const savedBlog = await api.post("/api/blogs").send(newBlog);
+
+    await api.delete(`/api/blogs/${savedBlog.body.id}`).expect(204);
+
+    const response = await api.get("/api/blogs");
+    const titles = response.body.map((r) => r.title);
+
+    expect(titles).not.toContain("Blog to delete");
+  });
+});
+  
+
 afterAll(() => {
   mongoose.connection.close();
 });
