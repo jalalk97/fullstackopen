@@ -39,50 +39,50 @@ test("all blogs returned have an id property", async () => {
 });
 
 test("a valid blog can be added", async () => {
-    const newBlog = {
-        title: "Blog title",
-        author: "Blog author",
-        url: "https://blog.com",
-        likes: 11,
-    }
+  const newBlog = {
+    title: "Blog title",
+    author: "Blog author",
+    url: "https://blog.com",
+    likes: 11,
+  };
 
-    await api
-        .post("/api/blogs")
-        .send(newBlog)
-        .expect(201)
-        .expect("Content-Type", /application\/json/)
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
 
-    const response = await api.get("/api/blogs");
+  const response = await api.get("/api/blogs");
 
-    const addedBlog = response.body[response.body.length-1];
+  const addedBlog = response.body[response.body.length - 1];
 
-    expect(response.body).toHaveLength(initialBlogs.length + 1);
-    expect(addedBlog.title).toBe("Blog title");
-    expect(addedBlog.author).toBe("Blog author");
-    expect(addedBlog.url).toBe("https://blog.com");
-    expect(addedBlog.likes).toBe(11);
-})
+  expect(response.body).toHaveLength(initialBlogs.length + 1);
+  expect(addedBlog.title).toBe("Blog title");
+  expect(addedBlog.author).toBe("Blog author");
+  expect(addedBlog.url).toBe("https://blog.com");
+  expect(addedBlog.likes).toBe(11);
+});
 
 test("when a blog is added without the likes property, the property defaults to zero", async () => {
-    const newBlog = {
-        title: "Blog title",
-        author: "Blog author",
-        url: "https://blog.com",
-    }
+  const newBlog = {
+    title: "Blog title",
+    author: "Blog author",
+    url: "https://blog.com",
+  };
 
-    await api
-        .post("/api/blogs")
-        .send(newBlog)
-        .expect(201)
-        .expect("Content-Type", /application\/json/)
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
 
-    const response = await api.get("/api/blogs");
+  const response = await api.get("/api/blogs");
 
-    const addedBlog = response.body[response.body.length-1];
+  const addedBlog = response.body[response.body.length - 1];
 
-    expect(response.body).toHaveLength(initialBlogs.length + 1);
-    expect(addedBlog.likes).toBe(0);
-})
+  expect(response.body).toHaveLength(initialBlogs.length + 1);
+  expect(addedBlog.likes).toBe(0);
+});
 
 test("a blog without a title property is not added", async () => {
   const newBlog = {
@@ -122,7 +122,7 @@ describe("fetching a single blog", () => {
   });
 });
 
-describe("deleting a single blog", () => {
+describe("deleting a blog", () => {
   test("removes the right blog and responds with status 204", async () => {
     const newBlog = {
       title: "Blog to delete",
@@ -141,7 +141,21 @@ describe("deleting a single blog", () => {
     expect(titles).not.toContain("Blog to delete");
   });
 });
-  
+
+describe("updating a blog", () => {
+  test("correctly updates the right blog", async () => {
+    const response = await api.get("/api/blogs");
+    const oldBlog = response.body[0];
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${oldBlog.id}`)
+      .send({ likes: oldBlog.likes + 100 })
+      .expect(200);
+
+    expect(updatedBlog.body.id).toBe(oldBlog.id);
+    expect(updatedBlog.body.likes).not.toBe(oldBlog.likes);
+  });
+});
 
 afterAll(() => {
   mongoose.connection.close();
