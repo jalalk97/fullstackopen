@@ -11,7 +11,6 @@ const saltRounds = 10;
 beforeEach(async () => {
   await User.deleteMany({});
 
-
   let userObject = new User({
     name: "Joe Blow",
     username: "joeblow80",
@@ -102,10 +101,21 @@ describe("addition of a new user", () => {
       password: "48htimshnoj",
     };
 
-    await api
-      .post("/api/users")
-      .send(newUser)
-      .expect(400)
+    await api.post("/api/users").send(newUser).expect(400);
+
+    const response = await api.get("/api/users");
+    const usersAtEnd = response.body;
+    expect(usersAtEnd).toHaveLength(2);
+  });
+
+  test("fails with status code 400 if username is already taken", async () => {
+    const newUser = {
+      name: "Joe Blow",
+      username: "joeblow80",
+      password: "48htimshnoj",
+    };
+
+    await api.post("/api/users").send(newUser).expect(400);
 
     const response = await api.get("/api/users");
     const usersAtEnd = response.body;
