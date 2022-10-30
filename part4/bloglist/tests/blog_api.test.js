@@ -3,15 +3,48 @@ const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
 const blogs = require("./blogLists").listWithManyBlogs;
+const User = require("../models/user");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const api = supertest(app);
 
-const initialBlogs = blogs.map((blog) => ({
-  title: blog.title,
-  author: blog.author,
-  url: blog.url,
-  likes: blog.likes,
-}));
+let tokenAndId;
+let initialBlogs;
+
+const getValidTokenAndId = async () => {
+  const user = {
+    username: "bigbob1256",
+    name: "Big Bob",
+    password: "6521bobgib",
+  };
+
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(user.password, saltRounds);
+  const savedUser = await User({
+    username: user.username,
+    name: user.name,
+    passwordHash,
+  }).save();
+  const response = await api.post("/api/login").send(user);
+
+  return {
+    token: `Bearer ${response.body.token}`,
+    id: savedUser._id,
+  };
+};
+
+beforeAll(async () => {
+  tokenAndId = await getValidTokenAndId();
+
+  initialBlogs = blogs.map((blog) => ({
+    title: blog.title,
+    author: blog.author,
+    url: blog.url,
+    likes: blog.likes,
+    user: tokenAndId.id,
+  }));
+});
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -48,6 +81,7 @@ test("a valid blog can be added", async () => {
 
   await api
     .post("/api/blogs")
+    .set("Authorization", tokenAndId.token)
     .send(newBlog)
     .expect(201)
     .expect("Content-Type", /application\/json/);
@@ -72,6 +106,7 @@ test("when a blog is added without the likes property, the property defaults to 
 
   await api
     .post("/api/blogs")
+    .set("Authorization", tokenAndId.token)
     .send(newBlog)
     .expect(201)
     .expect("Content-Type", /application\/json/);
@@ -91,7 +126,11 @@ test("a blog without a title property is not added", async () => {
     likes: 11,
   };
 
-  await api.post("/api/blogs").send(newBlog).expect(400);
+  await api
+    .post("/api/blogs")
+    .set("Authorization", tokenAndId.token)
+    .send(newBlog)
+    .expect(400);
 
   const response = await api.get("/api/blogs");
   expect(response.body).toHaveLength(initialBlogs.length);
@@ -104,7 +143,11 @@ test("a blog without a url property is not added", async () => {
     likes: 11,
   };
 
-  await api.post("/api/blogs").send(newBlog).expect(400);
+  await api
+    .post("/api/blogs")
+    .set("Authorization", tokenAndId.token)
+    .send(newBlog)
+    .expect(400);
 
   const response = await api.get("/api/blogs");
   expect(response.body).toHaveLength(initialBlogs.length);
@@ -129,17 +172,48 @@ describe("deleting a blog", () => {
       author: "Author",
       url: "https://blog.com",
       likes: 5,
+      user: tokenAndId.id,
     };
 
-    const savedBlog = await api.post("/api/blogs").send(newBlog);
+    const postResponse = await api
+      .post("/api/blogs")
+      .set("Authorization", tokenAndId.token)
+      .send(newBlog)
 
-    await api.delete(`/api/blogs/${savedBlog.body.id}`).expect(204);
+    await api
+      .delete(`/api/blogs/${postResponse.body.id}`)
+      .set("Authorization", tokenAndId.token)
+      .expect(204);
 
     const response = await api.get("/api/blogs");
     const titles = response.body.map((r) => r.title);
 
     expect(titles).not.toContain("Blog to delete");
   });
+
+  test("fails with status code 401 if a token is not provided", async () => {
+    const newBlog = {
+      title: "Blog to delete",
+      author: "Author",
+      url: "https://blog.com",
+      likes: 5,
+      user: tokenAndId.id,
+    };
+
+    const postResponse = await api
+      .post("/api/blogs")
+      .set("Authorization", tokenAndId.token)
+      .send(newBlog)
+
+    await api
+      .delete(`/api/blogs/${postResponse.body.id}`)
+      .expect(401);
+
+    const response = await api.get("/api/blogs");
+    const titles = response.body.map((r) => r.title);
+
+    expect(titles).toContain("Blog to delete");
+  })
 });
 
 describe("updating a blog", () => {

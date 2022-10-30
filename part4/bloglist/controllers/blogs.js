@@ -36,7 +36,7 @@ blogsRouter.get("/:id", async (request, response) => {
 blogsRouter.delete("/:id", userExtractor, async (request, response) => {
   const blog = await Blog.findById(request.params.id);
 
-  if (request.user.id !== blog.user.toString()) {
+  if (request.user.id.toString() !== blog.user.toString()) {
     return response.status(401).json({
       error: "permission denied"
     })
