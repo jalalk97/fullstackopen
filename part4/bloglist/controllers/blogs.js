@@ -1,9 +1,6 @@
 const blogsRouter = require("express").Router();
-const { response } = require("express");
 const Blog = require("../models/blog");
-const User = require("../models/user");
-const jwt = require("jsonwebtoken");
-const user = require("../models/user");
+const { userExtractor } = require("../utils/middleware");
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate("user", {
@@ -14,7 +11,7 @@ blogsRouter.get("/", async (request, response) => {
   response.json(blogs);
 });
 
-blogsRouter.post("/", async (request, response) => {
+blogsRouter.post("/", userExtractor, async (request, response) => {
   const blog = new Blog({
     title: request.body.title,
     author: request.body.author,
@@ -36,7 +33,7 @@ blogsRouter.get("/:id", async (request, response) => {
   response.json(blog);
 });
 
-blogsRouter.delete("/:id", async (request, response) => {
+blogsRouter.delete("/:id", userExtractor, async (request, response) => {
   const blog = await Blog.findById(request.params.id);
 
   if (request.user.id !== blog.user.toString()) {
