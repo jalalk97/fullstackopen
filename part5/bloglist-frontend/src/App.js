@@ -78,6 +78,23 @@ const App = () => {
     }
   }
 
+  const removeBlog = async (blogObject) => {
+    try {
+      const ok = window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}`)
+      if (!ok) {
+        return;
+      }
+      await blogService.remove(blogObject.id)
+      setBlogs(prevBlogs => prevBlogs
+        .filter((blog) => blog.id !== blogObject.id)
+        .sort((blog1, blog2) => blog2.likes - blog1.likes))
+    } catch (error) {
+      console.log(error.message)
+      console.log(error.response.data.error)
+      notify(error.response.data.error, true)
+    }
+  }
+
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON != null) {
@@ -118,7 +135,14 @@ const App = () => {
             <BlogForm createBlog={createBlog} />
           </Togglable>
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} likeBlog={likeBlog} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              likeBlog={likeBlog}
+              removeBlog={removeBlog}
+              showDelete={blog.user.username === user.username
+                || blog.user.username === undefined}
+            />
           )}
         </div>
       }
