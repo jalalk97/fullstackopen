@@ -30,11 +30,11 @@ router.post('/', async (request, response) => {
 
 router.delete('/:id', async (request, response) => {
   const blogToDelete = await Blog.findById(request.params.id)
-  if (!blogToDelete ) {
+  if (!blogToDelete) {
     return response.status(204).end()
   }
 
-  if ( blogToDelete.user && blogToDelete.user.toString() !== request.user.id ) {
+  if (blogToDelete.user && blogToDelete.user.toString() !== request.user.id) {
     return response.status(401).json({
       error: 'only the creator can delete a blog'
     })
@@ -46,15 +46,19 @@ router.delete('/:id', async (request, response) => {
 })
 
 router.put('/:id', async (request, response) => {
+  if (!request.user) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
   const blog = request.body
 
   const updatedBlog = await Blog
     .findByIdAndUpdate(
-      request.params.id, 
-      blog, 
+      request.params.id,
+      blog,
       { new: true, runValidators: true, context: 'query' }
     )
-      
+
   response.json(updatedBlog)
 })
 

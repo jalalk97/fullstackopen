@@ -22,7 +22,6 @@ const App = () => {
   }
 
   const handleLogin = async (event) => {
-    console.log("login")
     event.preventDefault()
     try {
       const submission = await loginService.login({ username, password })
@@ -39,18 +38,36 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    console.log("logout")
     window.localStorage.removeItem("loggedBlogAppUser")
     setUser(null)
   }
 
   const createBlog = async (blogObject) => {
-    console.log("create blog")
     blogFormRef.current.toggleVisibility()
     try {
       const createdBlog = await blogService.create(blogObject)
       setBlogs((prevBlogs) => prevBlogs.concat(createdBlog))
       notify(`a new blog ${blogObject.title} by ${blogObject.author} added`, false)
+    } catch (error) {
+      console.log(error.message)
+      console.log(error.response.data.error)
+      notify(error.response.data.error, true)
+    }
+  }
+
+  const likeBlog = async (blogObject) => {
+    try {
+      const updatedBlog = await blogService.update(blogObject.id,
+        {
+          title: blogObject.title,
+          author: blogObject.author,
+          url: blogObject.url,
+          likes: blogObject.likes + 1,
+          user: blogObject.user.id,
+        }
+      );
+      setBlogs(prevBlogs => prevBlogs.map((blog) =>
+        blog.id === blogObject.id ? { ...blog, likes: blog.likes + 1 } : blog))
     } catch (error) {
       console.log(error.message)
       console.log(error.response.data.error)
@@ -98,7 +115,7 @@ const App = () => {
             <BlogForm createBlog={createBlog} />
           </Togglable>
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} likeBlog={likeBlog} />
           )}
         </div>
       }

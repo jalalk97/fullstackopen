@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, likeBlog }) => {
   const [isVisible, setVisible] = useState(true)
 
   const blogStyle = {
@@ -16,7 +16,7 @@ const Blog = ({ blog }) => {
   }
 
   const like = () => {
-    console.log("like")
+    likeBlog(blog)
   }
 
   const { title, author, url, likes, user } = blog
