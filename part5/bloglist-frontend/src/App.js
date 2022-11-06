@@ -46,7 +46,9 @@ const App = () => {
     blogFormRef.current.toggleVisibility()
     try {
       const createdBlog = await blogService.create(blogObject)
-      setBlogs((prevBlogs) => prevBlogs.concat(createdBlog))
+      setBlogs((prevBlogs) => prevBlogs
+        .concat(createdBlog)
+        .sort((blog1, blog2) => blog2.likes - blog1.likes))
       notify(`a new blog ${blogObject.title} by ${blogObject.author} added`, false)
     } catch (error) {
       console.log(error.message)
@@ -57,7 +59,7 @@ const App = () => {
 
   const likeBlog = async (blogObject) => {
     try {
-      const updatedBlog = await blogService.update(blogObject.id,
+      await blogService.update(blogObject.id,
         {
           title: blogObject.title,
           author: blogObject.author,
@@ -66,8 +68,9 @@ const App = () => {
           user: blogObject.user.id,
         }
       );
-      setBlogs(prevBlogs => prevBlogs.map((blog) =>
-        blog.id === blogObject.id ? { ...blog, likes: blog.likes + 1 } : blog))
+      setBlogs(prevBlogs => prevBlogs
+        .map((blog) => blog.id === blogObject.id ? { ...blog, likes: blog.likes + 1 } : blog)
+        .sort((blog1, blog2) => blog2.likes - blog1.likes))
     } catch (error) {
       console.log(error.message)
       console.log(error.response.data.error)
@@ -86,7 +89,7 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs(blogs)
+      setBlogs(blogs.sort((blog1, blog2) => blog2.likes - blog1.likes))
     )
   }, [])
 
