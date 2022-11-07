@@ -9,8 +9,8 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState(null)
 
@@ -25,11 +25,11 @@ const App = () => {
     event.preventDefault()
     try {
       const submission = await loginService.login({ username, password })
-      window.localStorage.setItem("loggedBlogAppUser", JSON.stringify(submission))
+      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(submission))
       blogService.setToken(submission.token)
       setUser(submission)
-      setUsername("")
-      setPassword("")
+      setUsername('')
+      setPassword('')
     } catch (error) {
       console.log(error.message)
       console.log(error.response.data.error)
@@ -38,7 +38,7 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogAppUser")
+    window.localStorage.removeItem('loggedBlogAppUser')
     setUser(null)
   }
 
@@ -67,7 +67,7 @@ const App = () => {
           likes: blogObject.likes + 1,
           user: blogObject.user.id,
         }
-      );
+      )
       setBlogs(prevBlogs => prevBlogs
         .map((blog) => blog.id === blogObject.id ? { ...blog, likes: blog.likes + 1 } : blog)
         .sort((blog1, blog2) => blog2.likes - blog1.likes))
@@ -82,7 +82,7 @@ const App = () => {
     try {
       const ok = window.confirm(`Remove blog ${blogObject.title} by ${blogObject.author}`)
       if (!ok) {
-        return;
+        return
       }
       await blogService.remove(blogObject.id)
       setBlogs(prevBlogs => prevBlogs
@@ -97,7 +97,7 @@ const App = () => {
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
-    if (loggedUserJSON != null) {
+    if (loggedUserJSON !== null) {
       const savedUser = JSON.parse(loggedUserJSON)
       setUser(savedUser)
       blogService.setToken(savedUser.token)
@@ -112,7 +112,7 @@ const App = () => {
 
   return (
     <>
-      {user == null
+      {user === null
         ? <div>
           <h2>log in to application</h2>
           <Notification notification={notification} />
