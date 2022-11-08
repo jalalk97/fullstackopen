@@ -2,7 +2,7 @@ import { useState } from 'react'
 import PropTypes from 'prop-types'
 
 const Blog = ({ blog, likeBlog, removeBlog, showDelete }) => {
-  const [isVisible, setVisible] = useState(true)
+  const [isVisible, setVisible] = useState(false)
 
   const blogStyle = {
     paddingTop: 10,
@@ -25,21 +25,24 @@ const Blog = ({ blog, likeBlog, removeBlog, showDelete }) => {
   }
 
   const { title, author, url, likes, user } = blog
-  // const loggedUsername = JSON.parse(window.localStorage.getItem("loggedBlogAppUser")).username
 
   return (
     <div style={blogStyle}>
+      <div className='blog'>
+        {title} {author}
+        <button onClick={toggleVisibility}>
+          {isVisible ? 'hide' : 'view'}
+        </button>
+        {isVisible &&
+          <div>
+            <div>{url}</div>
+            <div>likes {likes} <button onClick={like}>like</button></div>
+            <div>{user.name}</div>
+          </div>}
+      </div>
       <div>
-        {title} {author} <button onClick={toggleVisibility}>{isVisible ? 'hide' : 'view'}</button>
-        <div style={{ display: isVisible ? '' : 'None' }}>
-          <div>{url}</div>
-          <div>likes {likes} <button onClick={like}>like</button></div>
-          <div>{user.name}</div>
-        </div>
-        <div>
-          {showDelete && <button onClick={remove}>remove</button>}
-        </div>
-      </div >
+        {showDelete && <button onClick={remove}>remove</button>}
+      </div>
     </div>
   )
 }
