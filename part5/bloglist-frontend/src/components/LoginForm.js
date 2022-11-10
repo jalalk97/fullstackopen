@@ -5,7 +5,6 @@ const LoginForm = ({
   username,
   password,
 }) => {
-
   return (
     <>
       <form onSubmit={handleSubmit}>
@@ -30,7 +29,7 @@ const LoginForm = ({
         <button type="submit">login</button>
       </form>
     </>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;
