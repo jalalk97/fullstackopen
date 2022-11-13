@@ -21,7 +21,7 @@ const LoginForm = ({
           <label htmlFor="password">password</label>
           <input
             type="password"
-            name="username"
+            name="password"
             value={password}
             onChange={handlePasswordChange}
           />
