@@ -38,4 +38,21 @@ describe("Blog app", function () {
       );
     });
   });
+
+  describe("When logged in", function () {
+    beforeEach(function () {
+      cy.get("input[name='username']").type("bigbob1256");
+      cy.get("input[name='password']").type("6521bobgib");
+      cy.contains("login").click();
+    });
+
+    it.only("A blog can be created", function () {
+      cy.contains("new blog").click();
+      cy.get("input[name='title']").type("Blog Title");
+      cy.get("input[name='author']").type("Blog Author");
+      cy.get("input[name='url']").type("https://www.blog.com");
+      cy.get("form").submit();
+      cy.contains("a new blog Blog Title by Blog Author added");
+    });
+  });
 });
