@@ -153,18 +153,20 @@ const App = () => {
           <Togglable buttonLabel="new blog" ref={blogFormRef}>
             <BlogForm createBlog={createBlog} />
           </Togglable>
-          {blogs.map((blog) => (
-            <Blog
-              key={blog.id}
-              blog={blog}
-              likeBlog={likeBlog}
-              removeBlog={removeBlog}
-              showDelete={
-                blog.user.username === user.username ||
-                blog.user.username === undefined
-              }
-            />
-          ))}
+          <div id="blog-list">
+            {blogs.map((blog) => (
+              <Blog
+                key={blog.id}
+                blog={blog}
+                likeBlog={likeBlog}
+                removeBlog={removeBlog}
+                showDelete={
+                  blog.user.username === user.username ||
+                  blog.user.username === undefined
+                }
+              />
+            ))}
+          </div>
         </div>
       )}
     </>

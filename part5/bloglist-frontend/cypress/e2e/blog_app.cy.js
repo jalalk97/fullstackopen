@@ -61,7 +61,7 @@ describe("Blog app", function () {
       cy.contains("a new blog Blog Title by Blog Author added");
     });
 
-    it.only("An existing blog can be liked", function () {
+    it("An existing blog can be liked", function () {
       cy.contains("Existing Blog Title Existing Blog Author")
         .contains("view")
         .click();
@@ -71,6 +71,21 @@ describe("Blog app", function () {
         .click()
         .parent()
         .should("contain", "1");
+    });
+
+    it.only("The user who creates a blog can delete it", function () {
+      cy.contains("Existing Blog Title Existing Blog Author")
+        .contains("view")
+        .click()
+        .parent()
+        .parent()
+        .contains("remove")
+        .click();
+
+      cy.get("#blog-list").should(
+        "not.contain",
+        "Existing Blog Title Existing Blog Author"
+      );
     });
   });
 });
