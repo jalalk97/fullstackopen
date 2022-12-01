@@ -4,10 +4,16 @@ import {
   hideNotification,
   showNotification,
 } from "../reducers/notificationReducer";
+import Filter from "./Filter";
 import Notification from "./Notification";
 
 const AnecdoteList = () => {
-  const anecdotes = useSelector((state) => state.anecdotes);
+  const filter = useSelector((state) => state.filter);
+  const anecdotes = useSelector((state) =>
+    state.anecdotes.filter((a) =>
+      a.content.toLowerCase().includes(filter.toLowerCase())
+    )
+  );
   const notification = useSelector((state) => state.notification);
   const dispatch = useDispatch();
 
@@ -24,6 +30,7 @@ const AnecdoteList = () => {
   return (
     <>
       {notification.isVisible && <Notification />}
+      <Filter />
       {anecdotes.map((anecdote) => (
         <div key={anecdote.id}>
           <div>{anecdote.content}</div>
