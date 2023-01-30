@@ -37,7 +37,6 @@ const anecdoteSlice = createSlice({
         .sort((a, b) => b.votes - a.votes);
     },
     createAnecdote(state, action) {
-      console.log("in createAnecdote");
       const content = action.payload;
       return [...state, asObject(content)];
     },
