@@ -3,15 +3,24 @@ import { useNotificationDispatch } from "../NotificationContext";
 import { createAnecdote } from "../requests";
 
 const AnecdoteForm = () => {
+  const dispatch = useNotificationDispatch();
+
   const queryClient = useQueryClient();
   const newAnecdoteMutation = useMutation(createAnecdote, {
     onSuccess: (newAnecdote) => {
       const anecdotes = queryClient.getQueryData("anecdotes");
       queryClient.setQueryData("anecdotes", anecdotes.concat(newAnecdote));
     },
+    onError: () => {
+      dispatch({
+        type: "SHOW",
+        payload: "too short, anecdote must have length 5 or more",
+      });
+      setTimeout(() => {
+        dispatch({ type: "HIDE" });
+      }, 5000);
+    },
   });
-
-  const dispatch = useNotificationDispatch();
 
   const onCreate = (event) => {
     event.preventDefault();
