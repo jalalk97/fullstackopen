@@ -17,7 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "json-server --port=3005 --watch db.json"
+    "server": "json-server --port=3005 --watch db.json",
+    "dev": "concurrently \"npm run server\" \"npm start\""
   },
   "browserslist": {
     "production": [
@@ -32,6 +33,7 @@
     ]
   },
   "devDependencies": {
+    "concurrently": "^7.6.0",
     "json-server": "^0.17.1"
   }
 }
