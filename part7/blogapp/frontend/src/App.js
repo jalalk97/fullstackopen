@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { notify } from "./reducers/notificationReducer";
 
 import Blog from "./components/Blog";
 import LoginForm from "./components/LoginForm";
@@ -11,9 +13,10 @@ import loginService from "./services/login";
 import userService from "./services/user";
 
 const App = () => {
+  const dispatch = useDispatch();
+
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
-  const [notification, setNotification] = useState(null);
   const blogFormRef = useRef();
   const byLikes = (b1, b2) => (b2.likes > b1.likes ? 1 : -1);
 
@@ -37,31 +40,38 @@ const App = () => {
       .then((user) => {
         setUser(user);
         userService.setUser(user);
-        notify(`${user.name} logged in!`);
+        dispatch(notify(`${user.name} logged in!`));
       })
       .catch(() => {
-        notify("wrong username/password", "alert");
+        dispatch(notify("wrong username/password", "alert"));
       });
   };
 
   const logout = () => {
     setUser(null);
     userService.clearUser();
-    notify("good bye!");
+    dispatch(notify("good bye!"));
   };
 
   const createBlog = async (blog) => {
     blogService
       .create(blog)
       .then((createdBlog) => {
-        notify(
-          `a new blog '${createdBlog.title}' by ${createdBlog.author} added`
+        dispatch(
+          notify(
+            `a new blog '${createdBlog.title}' by ${createdBlog.author} added`
+          )
         );
         setBlogs(blogs.concat(createdBlog));
         blogFormRef.current.toggleVisibility();
       })
       .catch((error) => {
-        notify("creating a blog failed: " + error.response.data.error, "alert");
+        dispatch(
+          notify(
+            "creating a blog failed: " + error.response.data.error,
+            "alert"
+          )
+        );
       });
   };
 
@@ -91,7 +101,9 @@ const App = () => {
     };
 
     blogService.update(liked.id, liked).then((updatedBlog) => {
-      notify(`you liked '${updatedBlog.title}' by ${updatedBlog.author}`);
+      dispatch(
+        notify(`you liked '${updatedBlog.title}' by ${updatedBlog.author}`)
+      );
       const updatedBlogs = blogs
         .map((b) => (b.id === id ? updatedBlog : b))
         .sort(byLikes);
@@ -99,17 +111,10 @@ const App = () => {
     });
   };
 
-  const notify = (message, type = "info") => {
-    setNotification({ message, type });
-    setTimeout(() => {
-      setNotification(null);
-    }, 5000);
-  };
-
   if (user === null) {
     return (
       <>
-        <Notification notification={notification} />
+        <Notification />
         <LoginForm onLogin={login} />
       </>
     );
@@ -119,7 +124,7 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      <Notification notification={notification} />
+      <Notification />
 
       <div>
         {user.name} logged in
