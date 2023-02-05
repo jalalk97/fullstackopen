@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { notify } from "./reducers/notificationReducer";
 import {
   createBlog,
+  deleteBlog,
   fetchBlogs,
   selectAllBlogs,
+  updateBlog,
 } from "./reducers/blogsReducer";
 
 import Blog from "./components/Blog";
@@ -78,28 +80,19 @@ const App = () => {
     if (!ok) {
       return;
     }
-    blogService.remove(id).then(() => {
-      const updatedBlogs = blogs.filter((b) => b.id !== id).sort(byLikes);
-      setBlogs(updatedBlogs);
-    });
+    dispatch(deleteBlog(toRemove));
+    dispatch(notify(`blog '${toRemove.title}' by ${toRemove.author} removed`));
   };
 
-  const likeBlog = async (id) => {
+  const likeBlog = (id) => {
     const toLike = blogs.find((b) => b.id === id);
     const liked = {
       ...toLike,
       likes: (toLike.likes || 0) + 1,
       user: toLike.user.id,
     };
-    blogService.update(liked.id, liked).then((updatedBlog) => {
-      dispatch(
-        notify(`you liked '${updatedBlog.title}' by ${updatedBlog.author}`)
-      );
-      const updatedBlogs = blogs
-        .map((b) => (b.id === id ? updatedBlog : b))
-        .sort(byLikes);
-      setBlogs(updatedBlogs);
-    });
+    dispatch(updateBlog(liked)).unwrap();
+    dispatch(notify(`you liked '${liked.title}' by ${liked.author}`));
   };
 
   if (user === null) {

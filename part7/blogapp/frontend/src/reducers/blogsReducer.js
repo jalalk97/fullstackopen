@@ -9,13 +9,29 @@ export const fetchBlogs = createAsyncThunk("blogs/fetchBlogs", async () => {
   return blogs;
 });
 
-export const createBlog = createAsyncThunk("blogs/createBlog", async (blog) => {
-  try {
-    const createdBlog = await blogService.create(blog);
-    return createdBlog;
-  } catch (error) {
-    throw new Error(error.response.data.error);
+export const createBlog = createAsyncThunk(
+  "blogs/createBlog",
+  async (newBlog) => {
+    try {
+      const createdBlog = await blogService.create(blog);
+      return createdBlog;
+    } catch (error) {
+      throw new Error(error.response.data.error);
+    }
   }
+);
+
+export const updateBlog = createAsyncThunk(
+  "blogs/updateBlog",
+  async (newBlog) => {
+    const updatedBlog = await blogService.update(newBlog.id, newBlog);
+    return updatedBlog;
+  }
+);
+
+export const deleteBlog = createAsyncThunk("blogs/deleteBlog", async (blog) => {
+  const response = await blogService.remove(blog.id);
+  return blog;
 });
 
 const initialState = [];
@@ -31,6 +47,15 @@ const blogsSlice = createSlice({
       })
       .addCase(createBlog.fulfilled, (state, action) => {
         state.push(action.payload);
+      })
+      .addCase(updateBlog.fulfilled, (state, action) => {
+        const { id } = action.payload;
+        return state
+          .map((blog) => (blog.id === id ? action.payload : blog))
+          .sort(byLikes);
+      })
+      .addCase(deleteBlog.fulfilled, (state, action) => {
+        return state.filter((blog) => blog.id !== action.payload.id);
       });
   },
 });
