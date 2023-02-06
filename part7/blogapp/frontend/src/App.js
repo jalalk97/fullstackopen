@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { notify } from "./reducers/notificationReducer";
@@ -9,6 +9,11 @@ import {
   selectAllBlogs,
   updateBlog,
 } from "./reducers/blogsReducer";
+import {
+  getLoggedInUser,
+  userLoggedIn,
+  userLoggedOut,
+} from "./reducers/userReducer";
 
 import Blog from "./components/Blog";
 import LoginForm from "./components/LoginForm";
@@ -16,28 +21,18 @@ import NewBlogForm from "./components/NewBlogForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 
-import blogService from "./services/blogs";
 import loginService from "./services/login";
-import userService from "./services/user";
 
 const App = () => {
   const dispatch = useDispatch();
 
   const blogs = useSelector(selectAllBlogs);
+  const loggedInUser = useSelector(getLoggedInUser);
 
-  const [user, setUser] = useState(null);
   const blogFormRef = useRef();
-  const byLikes = (b1, b2) => (b2.likes > b1.likes ? 1 : -1);
 
   useEffect(() => {
     dispatch(fetchBlogs());
-  }, []);
-
-  useEffect(() => {
-    const userFromStorage = userService.getUser();
-    if (userFromStorage) {
-      setUser(userFromStorage);
-    }
   }, []);
 
   const login = async (username, password) => {
@@ -47,8 +42,7 @@ const App = () => {
         password,
       })
       .then((user) => {
-        setUser(user);
-        userService.setUser(user);
+        dispatch(userLoggedIn(user));
         dispatch(notify(`${user.name} logged in!`));
       })
       .catch(() => {
@@ -57,8 +51,7 @@ const App = () => {
   };
 
   const logout = () => {
-    setUser(null);
-    userService.clearUser();
+    dispatch(userLoggedOut());
     dispatch(notify("good bye!"));
   };
 
@@ -95,7 +88,7 @@ const App = () => {
     dispatch(notify(`you liked '${liked.title}' by ${liked.author}`));
   };
 
-  if (user === null) {
+  if (loggedInUser === null) {
     return (
       <>
         <Notification />
@@ -111,7 +104,7 @@ const App = () => {
       <Notification />
 
       <div>
-        {user.name} logged in
+        {loggedInUser.name} logged in
         <button onClick={logout}>logout</button>
       </div>
 
@@ -126,7 +119,7 @@ const App = () => {
             blog={blog}
             likeBlog={likeBlog}
             removeBlog={removeBlog}
-            user={user}
+            user={loggedInUser}
           />
         ))}
       </div>
