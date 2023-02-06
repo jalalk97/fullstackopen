@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { notify } from "../reducers/notificationReducer";
 import { userLoggedIn } from "../reducers/userReducer";
 import loginService from "../services/login";
 
+import Notification from "./Notification";
+
 const LoginForm = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +24,7 @@ const LoginForm = () => {
       })
       .then((user) => {
         dispatch(userLoggedIn(user));
+        navigate("/");
         dispatch(notify(`${user.name} logged in!`));
       })
       .catch(() => {

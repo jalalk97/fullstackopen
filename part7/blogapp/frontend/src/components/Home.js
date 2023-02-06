@@ -1,14 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
-import {
-  createBlog,
-  fetchBlogs,
-  selectAllBlogs,
-} from "../reducers/blogsReducer";
+import { createBlog, selectAllBlogs } from "../reducers/blogsReducer";
 import { notify } from "../reducers/notificationReducer";
 
-import Blog from "./Blog";
 import NewBlogForm from "./NewBlogForm";
 import Togglable from "./Togglable";
 
@@ -16,10 +12,6 @@ const Home = () => {
   const dispatch = useDispatch();
   const blogs = useSelector(selectAllBlogs);
   const blogFormRef = useRef();
-
-  useEffect(() => {
-    dispatch(fetchBlogs());
-  }, []);
 
   const onCreateBlog = async (blog) => {
     try {
@@ -31,6 +23,13 @@ const Home = () => {
     }
   };
 
+  const style = {
+    padding: 7,
+    margin: 5,
+    borderStyle: "solid",
+    borderWidth: 1,
+  };
+
   return (
     <main>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
@@ -39,7 +38,11 @@ const Home = () => {
 
       <div id="blogs">
         {blogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
+          <div key={blog.id} style={style}>
+            <Link to={`/blogs/${blog.id}`}>
+              {blog.title} {blog.author}
+            </Link>
+          </div>
         ))}
       </div>
     </main>
