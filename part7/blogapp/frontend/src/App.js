@@ -26,7 +26,6 @@ const App = () => {
   const blog = blogMatch
     ? blogs.find((blog) => blog.id === blogMatch.params.id)
     : null;
-  console.log(blog);
 
   return (
     <div>

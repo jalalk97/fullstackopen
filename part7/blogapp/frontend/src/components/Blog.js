@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { deleteBlog, updateBlog } from "../reducers/blogsReducer";
 import { notify } from "../reducers/notificationReducer";
 import { getLoggedInUser } from "../reducers/userReducer";
@@ -6,6 +7,7 @@ import { getLoggedInUser } from "../reducers/userReducer";
 const Blog = ({ blog }) => {
   const dispatch = useDispatch();
   const user = useSelector(getLoggedInUser);
+  const navigate = useNavigate();
 
   if (!blog) {
     return null;
@@ -17,6 +19,7 @@ const Blog = ({ blog }) => {
       return;
     }
     dispatch(deleteBlog(blog));
+    navigate("/");
     dispatch(notify(`blog '${blog.title}' by ${blog.author} removed`));
   };
 

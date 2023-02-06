@@ -1,31 +1,22 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
-import { notify } from "../reducers/notificationReducer";
-import { getLoggedInUser, userLoggedOut } from "../reducers/userReducer";
+import { getLoggedInUser } from "../reducers/userReducer";
+import NavigationBar from "./NavigationBar";
 
 import Notification from "./Notification";
 
 const Header = () => {
-  const dispatch = useDispatch();
   const loggedInUser = useSelector(getLoggedInUser);
 
   if (loggedInUser === null) {
     return null;
   }
 
-  const logout = () => {
-    dispatch(userLoggedOut());
-    dispatch(notify("good bye!"));
-  };
-
   return (
     <header>
-      <h1>Blogs</h1>
+      <NavigationBar />
       <Notification />
-      <p>{loggedInUser.name} logged in</p>
-      <p>
-        <button onClick={logout}>logout</button>
-      </p>
+      <h1>Blog App</h1>
     </header>
   );
 };
