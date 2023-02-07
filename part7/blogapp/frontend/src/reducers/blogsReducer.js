@@ -35,6 +35,15 @@ export const deleteBlog = createAsyncThunk("blogs/deleteBlog", async (blog) => {
   return blog;
 });
 
+export const postComment = createAsyncThunk(
+  "blogs/postComment",
+  async (args) => {
+    const { id, comment } = args;
+    const response = await blogService.addComment(id, comment);
+    return response;
+  }
+);
+
 const initialState = [];
 
 const blogsSlice = createSlice({
@@ -57,6 +66,11 @@ const blogsSlice = createSlice({
       })
       .addCase(deleteBlog.fulfilled, (state, action) => {
         return state.filter((blog) => blog.id !== action.payload.id);
+      })
+      .addCase(postComment.fulfilled, (state, action) => {
+        return state.map((blog) =>
+          blog.id === action.payload.id ? action.payload : blog
+        );
       });
   },
 });
