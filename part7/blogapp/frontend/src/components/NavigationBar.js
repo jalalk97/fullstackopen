@@ -44,7 +44,7 @@ const NavigationBar = () => {
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
-        <Toolbar>
+        <Toolbar disableGutters>
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -77,7 +77,10 @@ const NavigationBar = () => {
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
                   <Typography textAlign="center">
-                    <Link to={`/${page}`} style={{ textDecoration: "none" }}>
+                    <Link
+                      to={`/${page.toLowerCase()}`}
+                      style={{ textDecoration: "none" }}
+                    >
                       {page}
                     </Link>
                   </Typography>
@@ -92,7 +95,12 @@ const NavigationBar = () => {
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
-                {page}
+                <Link
+                  to={`/${page.toLowerCase()}`}
+                  style={{ textDecoration: "none", color: "white" }}
+                >
+                  {page}
+                </Link>
               </Button>
             ))}
           </Box>
