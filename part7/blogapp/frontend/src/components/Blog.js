@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { deleteBlog, updateBlog } from "../reducers/blogsReducer";
 import { notify } from "../reducers/notificationReducer";
 import { getLoggedInUser } from "../reducers/userReducer";
+import CommentSection from "./CommentSection";
 
 const Blog = ({ blog }) => {
   const dispatch = useDispatch();
@@ -48,6 +49,7 @@ const Blog = ({ blog }) => {
       <div>
         added by {addedBy} {own && <button onClick={removeBlog}>delete</button>}
       </div>
+      <CommentSection blog={blog} />
     </article>
   );
 };

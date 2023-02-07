@@ -61,4 +61,21 @@ router.put("/:id", async (request, response) => {
   response.json(updatedBlog);
 });
 
+router.get("/:id/comments", async (request, response) => {
+  const blog = await Blog.findById(request.params.id);
+
+  response.json(blog.comments);
+});
+
+router.post("/:id/comments", async (request, response) => {
+  const comment = request.body.comment;
+
+  const blog = await Blog.findById(request.params.id);
+
+  blog.comments = blog.comments.concat(comment);
+  const savedBlog = await blog.save();
+
+  response.status(201).json(savedBlog);
+});
+
 module.exports = router;
