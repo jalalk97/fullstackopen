@@ -1,3 +1,14 @@
+import {
+  Button,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
+import { Box } from "@mui/system";
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -33,18 +44,48 @@ const Home = () => {
   return (
     <main>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <NewBlogForm onCreate={onCreateBlog} />
+        <NewBlogForm
+          onCreate={onCreateBlog}
+          onCancel={() => blogFormRef.current.toggleVisibility()}
+        />
       </Togglable>
 
-      <div id="blogs">
-        {blogs.map((blog) => (
-          <div key={blog.id} style={style}>
-            <Link to={`/blogs/${blog.id}`}>
-              {blog.title} {blog.author}
-            </Link>
-          </div>
-        ))}
-      </div>
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justify="center"
+        style={{ minHeight: "100vh" }}
+      >
+        <Grid item xs={6}>
+          {blogs.map((blog) => (
+            <Box key={blog.id} p={3}>
+              <Card>
+                <CardContent>
+                  <Typography gutterBottom variant="h4" component="div">
+                    {blog.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {`by ${blog.author}`}
+                  </Typography>
+                </CardContent>
+
+                <CardActions>
+                  <Button size="small" color="primary">
+                    <Link
+                      style={{ textDecoration: "none" }}
+                      to={`/blogs/${blog.id}`}
+                    >
+                      See blog
+                    </Link>
+                  </Button>
+                </CardActions>
+              </Card>
+            </Box>
+          ))}
+        </Grid>
+      </Grid>
     </main>
   );
 };

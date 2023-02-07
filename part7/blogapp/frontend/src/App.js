@@ -4,6 +4,7 @@ import { getLoggedInUser } from "./reducers/userReducer";
 import { getAllUsers } from "./reducers/usersReducer";
 
 import { Navigate, Route, Routes, useMatch } from "react-router-dom";
+import { Container } from "@mui/material";
 
 import Header from "./components/Header";
 import Home from "./components/Home";
@@ -28,7 +29,7 @@ const App = () => {
     : null;
 
   return (
-    <div>
+    <Container>
       <Header />
       <Routes>
         <Route
@@ -64,7 +65,7 @@ const App = () => {
           }
         />
       </Routes>
-    </div>
+    </Container>
   );
 };
 

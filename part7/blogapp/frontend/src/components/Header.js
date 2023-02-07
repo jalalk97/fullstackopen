@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 
 import { getLoggedInUser } from "../reducers/userReducer";
@@ -16,7 +17,7 @@ const Header = () => {
     <header>
       <NavigationBar />
       <Notification />
-      <h1>Blog App</h1>
+      <Typography variant="h1">Blog App</Typography>
     </header>
   );
 };
