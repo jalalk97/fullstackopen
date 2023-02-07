@@ -15,7 +15,6 @@ const Header = () => {
 
   return (
     <header>
-      <NavigationBar />
       <Notification />
       <Typography variant="h1">Blog App</Typography>
     </header>
