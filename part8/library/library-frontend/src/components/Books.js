@@ -1,14 +1,6 @@
-import { gql, useQuery } from "@apollo/client";
-
-const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      title
-      author
-      published
-    }
-  }
-`;
+import { useQuery } from "@apollo/client";
+import { Link } from "react-router-dom";
+import { ALL_BOOKS } from "../queries";
 
 const Books = () => {
   const { loading, error, data } = useQuery(ALL_BOOKS);
@@ -44,6 +36,11 @@ const Books = () => {
           ))}
         </tbody>
       </table>
+      <p>
+        <button>
+          <Link to="/books/new">add book</Link>
+        </button>
+      </p>
     </div>
   );
 };
