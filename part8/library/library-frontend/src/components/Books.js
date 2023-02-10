@@ -11,7 +11,7 @@ const Books = () => {
 
   if (error) {
     console.log(error);
-    return <div>`Error: ${error.message}`</div>;
+    return <div>{`Error: ${error.message}`}</div>;
   }
 
   const books = data.allBooks;
@@ -30,7 +30,7 @@ const Books = () => {
           {books.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
-              <td>{a.author}</td>
+              <td>{a.author.name}</td>
               <td>{a.published}</td>
             </tr>
           ))}
