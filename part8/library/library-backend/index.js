@@ -80,11 +80,30 @@ let books = [
   },
 ];
 
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
+const Author = require("./models/author");
+const Book = require("./models/book");
+require("dotenv").config();
+
+const LIBRARY_APP_DB_URI = process.env.LIBRARY_APP_DB_URI;
+
+console.log("connecting to", LIBRARY_APP_DB_URI);
+
+mongoose
+  .connect(LIBRARY_APP_DB_URI)
+  .then(() => {
+    console.log("connected to MongoDB");
+  })
+  .catch((error) => {
+    console.log("error connection to MongoDB:", error.message);
+  });
+
 const typeDefs = `
   type Book {
     title: String!
     published: Int!
-    author: String!
+    author: Author!
     genres: [String!]!
     id: ID!
   }
@@ -119,8 +138,8 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
+    bookCount: async () => Book.collection.countDocuments(),
+    authorCount: async () => Author.collection.countDocuments(),
     allBooks: (root, args) => {
       let filteredBooks = [...books];
       if (args.author) {
@@ -135,17 +154,24 @@ const resolvers = {
       }
       return filteredBooks;
     },
-    allAuthors: () => authors,
+    allAuthors: async () => Author.find({}),
   },
   Mutation: {
-    addBook: (root, args) => {
-      const book = { ...args, id: uuid() };
-      books = books.concat(book);
-      if (!authors.find((author) => author.name === book.author)) {
-        const author = { name: book.author, id: uuid() };
-        authors = authors.concat(author);
+    addBook: async (root, args) => {
+      const book = new Book({ ...args });
+      const author = await Author.findOne({ name: args.author });
+      if (!author) {
+        const newAuthor = new Author({ name: args.author });
+        await newAuthor.save();
       }
-      return book;
+      return book.save();
+      // const book = { ...args, id: uuid() };
+      // books = books.concat(book);
+      // if (!authors.find((author) => author.name === book.author)) {
+      //   const author = { name: book.author, id: uuid() };
+      //   authors = authors.concat(author);
+      // }
+      // return book;
     },
     editAuthor: (root, args) => {
       const author = authors.find((author) => author.name === args.name);
