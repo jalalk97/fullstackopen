@@ -1,5 +1,6 @@
 const { ApolloServer } = require("@apollo/server");
 const { startStandaloneServer } = require("@apollo/server/standalone");
+const { GraphQLError } = require("graphql");
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
@@ -79,26 +80,51 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      try {
-        let author = await Author.findOne({ name: args.author });
-        if (!author) {
-          author = new Author({ name: args.author });
+      let author = await Author.findOne({ name: args.author });
+      if (!author) {
+        author = new Author({ name: args.author });
+        try {
           await author.save();
+        } catch (error) {
+          throw new GraphQLError("Saving author failed", {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              invalidArgs: args.author,
+              error,
+            },
+          });
         }
-        const book = new Book({ ...args, author });
-        return book.save();
-      } catch (error) {
-        console.log(error.message);
-        throw error;
       }
+      const book = new Book({ ...args, author });
+      try {
+        const savedBook = await book.save();
+        return savedBook;
+      } catch (error) {}
+      throw new GraphQLError("Saving book failed", {
+        extensions: {
+          code: "BAD_USER_INPUT",
+          invalidArgs: args.title,
+          error,
+        },
+      });
     },
     editAuthor: async (root, args) => {
-      console.log("args:", args);
-      return Author.findOneAndUpdate(
-        { name: args.name },
-        { born: args.setBornTo },
-        { new: true, context: "query", runValidators: true }
-      );
+      const author = Author.findOne({ name: args.name });
+      if (!author) {
+        throw new GraphQLError("Author no found");
+      }
+
+      author.born = args.setBornTo;
+      try {
+        const savedAuthor = await author.save();
+        return savedAuthor;
+      } catch (error) {
+        throw new GraphQLError("Saving author failed", {
+          extensions: {
+            error,
+          },
+        });
+      }
     },
   },
   Author: {
