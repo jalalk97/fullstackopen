@@ -1,10 +1,10 @@
 import { Outlet } from "react-router-dom";
 import Header from "./Header";
 
-const Layout = () => {
+const Layout = ({ error, token, onLogout }) => {
   return (
     <>
-      <Header />
+      <Header error={error} token={token} onLogout={onLogout} />
       <Outlet />
     </>
   );

@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useState } from "react";
 import { ALL_AUTHORS, SET_AUTHOR_BIRTH_YEAR } from "../queries";
 
-const EditBirthYearForm = () => {
+const EditAuthorForm = () => {
   const [name, setName] = useState("");
   const [year, setYear] = useState("");
   const [names, setNames] = useState([]);
@@ -65,4 +65,4 @@ const EditBirthYearForm = () => {
     </>
   );
 };
-export default EditBirthYearForm;
+export default EditAuthorForm;

@@ -1,8 +1,8 @@
 import { useQuery } from "@apollo/client";
 import { ALL_AUTHORS } from "../queries";
-import EditBirthYearForm from "./EditBirthYearForm";
+import EditAuthorForm from "./EditAuthorForm";
 
-const Authors = () => {
+const Authors = ({ token }) => {
   const { loading, error, data } = useQuery(ALL_AUTHORS);
 
   if (loading) {
@@ -35,7 +35,7 @@ const Authors = () => {
           ))}
         </tbody>
       </table>
-      <EditBirthYearForm />
+      {token && <EditAuthorForm />}
     </div>
   );
 };
