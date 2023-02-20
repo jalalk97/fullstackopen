@@ -149,6 +149,11 @@ const resolvers = {
       };
     },
   },
+  Author: {
+    bookCount: ({ name }) => {
+      return books.filter((book) => book.author === name).length;
+    },
+  },
 };
 
 module.exports = resolvers;
