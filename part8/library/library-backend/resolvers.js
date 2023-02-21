@@ -1,157 +1,191 @@
-const { v1: uuid } = require("uuid");
+const jwt = require("jsonwebtoken");
 
-let authors = [
-  {
-    name: "Robert Martin",
-    id: "afa51ab0-344d-11e9-a414-719c6709cf3e",
-    born: 1952,
-  },
-  {
-    name: "Martin Fowler",
-    id: "afa5b6f0-344d-11e9-a414-719c6709cf3e",
-    born: 1963,
-  },
-  {
-    name: "Fyodor Dostoevsky",
-    id: "afa5b6f1-344d-11e9-a414-719c6709cf3e",
-    born: 1821,
-  },
-  {
-    name: "Joshua Kerievsky", // birthyear not known
-    id: "afa5b6f2-344d-11e9-a414-719c6709cf3e",
-  },
-  {
-    name: "Sandi Metz", // birthyear not known
-    id: "afa5b6f3-344d-11e9-a414-719c6709cf3e",
-  },
-];
-
-let books = [
-  {
-    title: "Clean Code",
-    published: 2008,
-    author: "Robert Martin",
-    id: "afa5b6f4-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring"],
-  },
-  {
-    title: "Agile software development",
-    published: 2002,
-    author: "Robert Martin",
-    id: "afa5b6f5-344d-11e9-a414-719c6709cf3e",
-    genres: ["agile", "patterns", "design"],
-  },
-  {
-    title: "Refactoring, edition 2",
-    published: 2018,
-    author: "Martin Fowler",
-    id: "afa5de00-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring"],
-  },
-  {
-    title: "Refactoring to patterns",
-    published: 2008,
-    author: "Joshua Kerievsky",
-    id: "afa5de01-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring", "patterns"],
-  },
-  {
-    title: "Practical Object-Oriented Design, An Agile Primer Using Ruby",
-    published: 2012,
-    author: "Sandi Metz",
-    id: "afa5de02-344d-11e9-a414-719c6709cf3e",
-    genres: ["refactoring", "design"],
-  },
-  {
-    title: "Crime and punishment",
-    published: 1866,
-    author: "Fyodor Dostoevsky",
-    id: "afa5de03-344d-11e9-a414-719c6709cf3e",
-    genres: ["classic", "crime"],
-  },
-  {
-    title: "The Demon ",
-    published: 1872,
-    author: "Fyodor Dostoevsky",
-    id: "afa5de04-344d-11e9-a414-719c6709cf3e",
-    genres: ["classic", "revolution"],
-  },
-];
+const Author = require("./models/author");
+const Book = require("./models/book");
+const User = require("./models/user");
 
 const resolvers = {
   Query: {
-    bookCount: () => books.length,
-    authorCount: () => authors.length,
-    allBooks: (_, { author, genre }) => {
-      if (author && genre) {
-        return books.filter(
-          (book) => book.author === author && book.genres.includes(genre)
-        );
-      }
+    bookCount: async () => {
+      return Book.collection.countDocuments();
+    },
+    authorCount: async () => {
+      return Author.collection.countDocuments();
+    },
+    allBooks: async (_, { author, genre }) => {
       if (author) {
-        return books.filter((book) => book.author === author);
+        let query;
+        const authorDoc = await Author.findOne({ name: author });
+        query = Book.where("author").equals(authorDoc.id);
+        if (genre) {
+          return query.where({ genres: genre }).exec();
+        }
+        return query.exec();
       }
       if (genre) {
-        return books.filter((book) => book.genres.includes(genre));
+        return Book.where({ genres: genre }).exec();
       }
-      return books;
+      return Book.find({});
     },
-    allAuthors: () => authors,
+    allAuthors: async () => {
+      return Author.find({});
+    },
+    me: (_, __, { currentUser }) => {
+      return currentUser;
+    },
   },
   Mutation: {
-    addBook: (_, { title, author, published, genres }) => {
-      const book = { title, author, published, genres, id: uuid() };
-      books = books.concat(book);
-
-      const response = {
-        code: 201,
-        success: true,
-        message: `Successfully created book with author ${author}`,
-        book,
-      };
-
-      const existingAuthor = authors.find((a) => a.name === author);
-
-      if (!existingAuthor) {
-        const newAuthor = { name: author, id: uuid() };
-        authors = authors.concat(newAuthor);
+    addBook: async (
+      _,
+      { title, author, published, genres },
+      { currentUser }
+    ) => {
+      if (!currentUser) {
         return {
-          ...response,
-          author: newAuthor,
+          code: 401,
+          success: false,
+          message: `Unauthenticated`,
+          book: null,
         };
       }
 
-      return {
-        ...response,
-        author: existingAuthor,
+      const bookWithoutAuthor = {
+        title,
+        published,
+        genres,
       };
+      let book;
+
+      const existingAuthor = await Author.findOne({ name: author });
+
+      try {
+        if (!existingAuthor) {
+          const newAuthor = await new Author({ name: author }).save();
+          book = await new Book({
+            ...bookWithoutAuthor,
+            author: newAuthor._id,
+          }).save();
+        } else {
+          book = await new Book({
+            ...bookWithoutAuthor,
+            author: existingAuthor._id,
+          }).save();
+        }
+
+        return {
+          code: 201,
+          success: true,
+          message: `Successfully created book '${title}' by '${author}'`,
+          book,
+        };
+      } catch (error) {
+        // const { errors, _message } = error;
+        // throw new GraphQLError(`${_message}: ${errors.title ?? errors.name}`, {
+        //   extensions: {
+        //     code: "BAD_USER_INPUT",
+        //     invalidArgs: errors.title ? title : author,
+        //     error
+        //   },
+        // });
+        return {
+          code: 400,
+          success: false,
+          message: `${error._message}: ${
+            error.errors.title ?? error.errors.name
+          }`,
+          book: null,
+        };
+      }
     },
-    editAuthor: (_, { name, setBornTo }) => {
-      const author = authors.find((author) => author.name === name);
+    editAuthor: async (_, { name, setBornTo }, { currentUser }) => {
+      if (!currentUser) {
+        return {
+          code: 401,
+          success: false,
+          message: `Unauthenticated`,
+          author: null,
+        };
+      }
+
+      const author = await Author.findOne({ name });
 
       if (!author) {
+        // throw new GraphQLError(`Author '${name}' not found`, {
+        //   extensions: {
+        //     code: "BAD_USER_INPUT",
+        //     invalidArgs: name,
+        //   }
+        // })
         return {
-          code: 404,
+          code: 400,
           success: false,
           message: `Author '${name}' not found`,
           author: null,
         };
       }
 
-      const updatedAuthor = { ...author, born: setBornTo };
-      authors = authors.map((a) => (a.name === name ? updatedAuthor : a));
+      author.born = setBornTo;
+      await author.save();
 
       return {
         code: 200,
         success: true,
         message: `Author '${name}' updated`,
-        author: updatedAuthor,
+        author,
+      };
+    },
+    createUser: async (_, { username, favouriteGenre }) => {
+      try {
+        const user = await new User({ username, favouriteGenre }).save();
+        return {
+          code: 201,
+          success: true,
+          message: "Successfully created new user",
+          user,
+        };
+      } catch (error) {
+        return {
+          code: 400,
+          success: false,
+          message: `${error._message}: ${error.errors.username}`,
+          user: null,
+        };
+      }
+    },
+    login: async (_, { username, password }) => {
+      const user = await User.findOne({ username });
+      if (!user || password !== "secret") {
+        return {
+          code: 400,
+          success: false,
+          message: "Wrong credentials",
+          token: null,
+        };
+      }
+
+      const userForToken = {
+        username,
+        id: user._id,
+      };
+
+      return {
+        code: 200,
+        success: true,
+        message: "Successfully logged in",
+        value: jwt.sign(userForToken, process.env.JWT_SECRET),
       };
     },
   },
   Author: {
-    bookCount: ({ name }) => {
-      return books.filter((book) => book.author === name).length;
+    bookCount: async ({ name }) => {
+      const author = await Author.findOne({ name });
+      return Book.collection.countDocuments({ author: author._id });
+    },
+  },
+  Book: {
+    author: async ({ id }) => {
+      const book = await Book.findById(id);
+      return Author.findById(book.author);
     },
   },
 };

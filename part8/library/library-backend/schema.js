@@ -6,6 +6,7 @@ const typeDefs = gql`
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
 
   type Mutation {
@@ -17,6 +18,8 @@ const typeDefs = gql`
     ): AddBookResponse!
 
     editAuthor(name: String!, setBornTo: Int!): EditAuthorResponse!
+    createUser(username: String!, favouriteGenre: String!): CreateUserResponse
+    login(username: String!, password: String!): LoginResponse
   }
 
   type AddBookResponse {
@@ -24,7 +27,6 @@ const typeDefs = gql`
     success: Boolean!
     message: String!
     book: Book
-    author: Author
   }
 
   type EditAuthorResponse {
@@ -34,19 +36,43 @@ const typeDefs = gql`
     author: Author
   }
 
+  type CreateUserResponse {
+    code: Int!
+    success: Boolean!
+    message: String!
+    user: User
+  }
+
+  type LoginResponse {
+    code: Int!
+    success: Boolean!
+    message: String!
+    token: Token
+  }
+
   type Book {
     id: ID!
     title: String!
     published: Int!
-    author: String!
+    author: Author!
     genres: [String!]!
   }
 
   type Author {
-    name: String!
     id: ID!
+    name: String!
     born: Int
     bookCount: Int!
+  }
+
+  type User {
+    id: ID!
+    username: String!
+    favouriteGenre: String!
+  }
+
+  type Token {
+    value: String!
   }
 `;
 
