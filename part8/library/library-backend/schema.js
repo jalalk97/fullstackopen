@@ -16,7 +16,6 @@ const typeDefs = gql`
       published: Int!
       genres: [String!]!
     ): AddBookResponse!
-
     editAuthor(name: String!, setBornTo: Int!): EditAuthorResponse!
     createUser(username: String!, favouriteGenre: String!): CreateUserResponse
     login(username: String!, password: String!): LoginResponse

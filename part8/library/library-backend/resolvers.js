@@ -172,7 +172,9 @@ const resolvers = {
         code: 200,
         success: true,
         message: "Successfully logged in",
-        value: jwt.sign(userForToken, process.env.JWT_SECRET),
+        token: {
+          value: jwt.sign(userForToken, process.env.JWT_SECRET),
+        },
       };
     },
   },

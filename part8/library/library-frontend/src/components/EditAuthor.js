@@ -1,7 +1,6 @@
-import { gql, useApolloClient, useMutation, useQuery } from "@apollo/client";
-import { useState } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GET_ALL_AUTHORS } from "../queries";
 import QueryResult from "./QueryResult";
 
 const EDIT_AUTHOR = gql`
@@ -41,6 +40,12 @@ const EditAuthor = () => {
 
   const { loading, error, data } = useQuery(GET_AUTHOR_NAMES);
 
+  useEffect(() => {
+    if (year === "" && data?.allAuthors.length) {
+      setName(data.allAuthors[0].name);
+    }
+  }, [year, data]);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     editAuthor();
@@ -60,7 +65,12 @@ const EditAuthor = () => {
               onChange={(event) => setName(event.target.value)}
             >
               {data?.allAuthors.map((author) => (
-                <option key={author.id}>{author.name}</option>
+                <option
+                  key={author.id}
+                  onChange={(event) => setName(event.target.value)}
+                >
+                  {author.name}
+                </option>
               ))}
             </select>
           </label>

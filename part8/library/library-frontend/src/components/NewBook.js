@@ -23,14 +23,13 @@ const ADD_BOOK = gql`
         id
         title
         published
-        author
+        author {
+          id
+          name
+          born
+          bookCount
+        }
         genres
-      }
-      author {
-        name
-        id
-        born
-        bookCount
       }
     }
   }
@@ -56,7 +55,7 @@ const NewBook = () => {
       cache,
       {
         data: {
-          addBook: { author: newAuthor, book: newBook },
+          addBook: { book },
         },
       }
     ) {
@@ -66,19 +65,26 @@ const NewBook = () => {
       cache.writeQuery({
         query: GET_ALL_AUTHORS,
         data: {
-          allAuthors: [...allAuthors, newAuthor],
+          allAuthors: [...allAuthors, book.author],
         },
       });
+      console.log("after 1st cache.writeQuery()");
 
       const { allBooks } = cache.readQuery({
         query: GET_ALL_BOOKS,
+        variables: {
+          author: null,
+          genre: null,
+        },
       });
+      console.log("after 2nd cache.readQuery()");
       cache.writeQuery({
         query: GET_ALL_BOOKS,
         data: {
-          allBooks: [...allBooks, newBook],
+          allBooks: [...allBooks, book],
         },
       });
+      console.log("after 2nd cache.readQuery()");
     },
   });
 
@@ -102,6 +108,7 @@ const NewBook = () => {
 
   return (
     <div>
+      <h2>Add book</h2>
       <form onSubmit={submit}>
         <div>
           title
