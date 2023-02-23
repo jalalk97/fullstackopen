@@ -2,6 +2,41 @@ import { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK } from "../queries";
+import { gql, useMutation } from "@apollo/client";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const ADD_BOOK = gql`
+  mutation AddBook(
+    $title: String!
+    $author: String!
+    $published: Int!
+    $genres: [String!]!
+  ) {
+    addBook(
+      title: $title
+      author: $author
+      published: $published
+      genres: $genres
+    ) {
+      code
+      success
+      message
+      book {
+        id
+        title
+        published
+        author {
+          id
+          name
+          born
+          bookCount
+        }
+        genres
+      }
+    }
+  }
+`;
 
 const NewBook = () => {
   const [title, setTitle] = useState("");
@@ -32,6 +67,28 @@ const NewBook = () => {
     } catch (error) {
       console.log(error.message);
     }
+  const navigate = useNavigate();
+
+  const [addBook] = useMutation(ADD_BOOK, {
+    variables: {
+      title,
+      author,
+      published: Number(published),
+      genres,
+    },
+  });
+
+  const submit = (event) => {
+    event.preventDefault();
+
+    addBook();
+    navigate("/books");
+
+    setTitle("");
+    setPublished("");
+    setAuthor("");
+    setGenres([]);
+    setGenre("");
   };
 
   const addGenre = () => {
@@ -41,6 +98,7 @@ const NewBook = () => {
 
   return (
     <div>
+      <h2>Add book</h2>
       <form onSubmit={submit}>
         <div>
           title

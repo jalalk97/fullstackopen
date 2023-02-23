@@ -5,8 +5,15 @@ const Layout = ({ error, token, onLogout }) => {
   return (
     <>
       <Header error={error} token={token} onLogout={onLogout} />
+import Navigation from "./Navigation";
+
+const Layout = () => {
+  return (
+    <>
+      <Navigation />
       <Outlet />
     </>
   );
 };
+
 export default Layout;

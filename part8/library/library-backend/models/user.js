@@ -10,6 +10,13 @@ const schema = new mongoose.Schema({
     minlength: 5,
   },
   favoriteGenre: {
+const schema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    minlength: 3,
+  },
+  favouriteGenre: {
     type: String,
     require: true,
   },
