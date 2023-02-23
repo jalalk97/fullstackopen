@@ -1,24 +1,9 @@
 {
-  "name": "library",
   "name": "library-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node index.js",
-    "dev": "nodemon index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@apollo/server": "^4.3.3",
-    "dotenv": "^16.0.3",
-    "graphql": "^16.6.0",
-    "jsonwebtoken": "^9.0.0",
-    "mongoose": "^6.9.1",
-    "mongoose-unique-validator": "^3.1.0",
-    "uuid": "^9.0.0"
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
