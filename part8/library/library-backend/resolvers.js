@@ -1,8 +1,11 @@
 const jwt = require("jsonwebtoken");
+const { PubSub } = require("graphql-subscriptions");
 
 const Author = require("./models/author");
 const Book = require("./models/book");
 const User = require("./models/user");
+
+const pubsub = new PubSub();
 
 const resolvers = {
   Query: {
@@ -60,17 +63,23 @@ const resolvers = {
 
       try {
         if (!existingAuthor) {
-          const newAuthor = await new Author({ name: author }).save();
+          const newAuthor = new Author({ name: author });
           book = await new Book({
             ...bookWithoutAuthor,
             author: newAuthor._id,
           }).save();
+          newAuthor.books = newAuthor.books.concat(book._id);
+          await newAuthor.save();
         } else {
           book = await new Book({
             ...bookWithoutAuthor,
             author: existingAuthor._id,
           }).save();
+          existingAuthor.books = existingAuthor.books.concat(book._id);
+          await existingAuthor.save();
         }
+
+        pubsub.publish("BOOK_ADDED", { bookAdded: book });
 
         return {
           code: 201,
@@ -178,9 +187,15 @@ const resolvers = {
       };
     },
   },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator("BOOK_ADDED"),
+    },
+  },
   Author: {
     bookCount: async ({ name }) => {
       const author = await Author.findOne({ name });
+      // return author.books.length; /* NOTE. THIS LINE SOLVES THE N+1 PROBLEM BUT BREAKS EXISTING BOOKS IN THE DATABASE */ return Book.collection.countDocuments({ author: author._id });
       return Book.collection.countDocuments({ author: author._id });
     },
   },

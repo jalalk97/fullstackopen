@@ -1,7 +1,6 @@
 import { gql, useMutation } from "@apollo/client";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { GET_ALL_AUTHORS, GET_ALL_BOOKS } from "../queries";
 
 const ADD_BOOK = gql`
   mutation AddBook(
@@ -50,41 +49,6 @@ const NewBook = () => {
       author,
       published: Number(published),
       genres,
-    },
-    update(
-      cache,
-      {
-        data: {
-          addBook: { book },
-        },
-      }
-    ) {
-      const { allAuthors } = cache.readQuery({
-        query: GET_ALL_AUTHORS,
-      });
-      cache.writeQuery({
-        query: GET_ALL_AUTHORS,
-        data: {
-          allAuthors: [...allAuthors, book.author],
-        },
-      });
-      console.log("after 1st cache.writeQuery()");
-
-      const { allBooks } = cache.readQuery({
-        query: GET_ALL_BOOKS,
-        variables: {
-          author: null,
-          genre: null,
-        },
-      });
-      console.log("after 2nd cache.readQuery()");
-      cache.writeQuery({
-        query: GET_ALL_BOOKS,
-        data: {
-          allBooks: [...allBooks, book],
-        },
-      });
-      console.log("after 2nd cache.readQuery()");
     },
   });
 

@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_ALL_BOOKS } from "../queries";
+import { useSubscription } from "@apollo/client";
+
 import QueryResult from "./QueryResult";
+import { BOOK_ADDED, GET_ALL_BOOKS } from "../queries";
 
 const Books = () => {
   const [selectedGenre, setSelectedGenre] = useState(null);
@@ -10,9 +12,30 @@ const Books = () => {
     variables: { genre: selectedGenre },
   });
 
-  // const selectedBooks = selectedGenre
-  //   ? data?.allBooks.filter((book) => book.genres.includes(selectedGenre))
-  //   : data?.allBooks;
+  useSubscription(BOOK_ADDED, {
+    onData: ({
+      data: {
+        data: { bookAdded },
+      },
+      client,
+    }) => {
+      console.log(bookAdded);
+      alert(`Book ${bookAdded.title} by ${bookAdded.author.name} added!`);
+      client.cache.modify({
+        fields: {
+          allBooks(books) {
+            return books.concat(bookAdded);
+          },
+        },
+      });
+
+      // updateCache(
+      //   client.cache,
+      //   { query: GET_ALL_BOOKS, variables: { genre: selectedGenre } },
+      //   bookAdded
+      // );
+    },
+  });
 
   return (
     <QueryResult loading={loading} error={error} data={data}>

@@ -21,6 +21,10 @@ const typeDefs = gql`
     login(username: String!, password: String!): LoginResponse
   }
 
+  type Subscription {
+    bookAdded: Book!
+  }
+
   type AddBookResponse {
     code: Int!
     success: Boolean!
