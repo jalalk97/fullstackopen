@@ -29,7 +29,7 @@ const parseArguments = (args: string[]): Arguments => {
   return { dailyExerciseHours, targetAmount };
 };
 
-const calculateExercises = (
+export const calculateExercises = (
   dailyExerciseHours: number[],
   targetAmount: number
 ): Result => {
